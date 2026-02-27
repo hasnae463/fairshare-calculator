@@ -182,7 +182,7 @@ function render(){
     // SVG grouped bar chart for All Models
     const bData=[{name:"Proportional",a:c.pmA,b:c.pmB},{name:"Equal Allow.",a:c.amA,b:c.amB},{name:"Debt-Adj.",a:c.dmA,b:c.dmB}];
     const bMax=Math.max(...bData.flatMap(d=>[d.a,d.b]),1);
-    const bW=600,bH=180,bPl=48,bPr=10,bPt=8,bPb=32,bGw=bW-bPl-bPr,bGh=bH-bPt-bPb;
+    const bW=600,bH=210,bPl=48,bPr=10,bPt=28,bPb=32,bGw=bW-bPl-bPr,bGh=bH-bPt-bPb;
     const grpW=bGw/bData.length,barW=grpW*0.3,barGap=4;
     let bSvg="";
     // grid
@@ -322,6 +322,7 @@ function bind(){
 
 function go(t){
   tab=t;render();
+  window.scrollTo(0,0);
   document.querySelectorAll(".tabs button").forEach((b,i)=>{
     b.className=["input","dashboard","wealth"][i]===t?"on":"";
   });
