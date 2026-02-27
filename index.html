@@ -26,7 +26,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .dv{height:1px;background:#2A2A27;margin:5px 0}
 .tot{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:2px solid #333330;margin-top:8px;flex-wrap:wrap;gap:6px}
 .plbl{display:flex;gap:clamp(6px,2vw,10px);margin-bottom:8px}
-.plbl>:first-child{flex:1}
 .plbl>span{flex:1;text-align:center;font-size:clamp(10px,2.5vw,12px);font-weight:600}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,2vw,12px)}
 .tog{display:flex;gap:3px;background:#181816;border-radius:10px;padding:3px;border:1px solid #333330}
@@ -84,6 +83,22 @@ const $=s=>document.querySelector(s);
 const fmt=n=>(n==null||isNaN(n))?"$0":n<0?"-$"+Math.abs(Math.round(n)).toLocaleString():"$"+Math.round(n).toLocaleString();
 const pct=n=>(n*100).toFixed(1)+"%";
 
+function animCount(el,target,duration){
+  duration=duration||1400;
+  let start=null,from=0;
+  const prev=parseInt((el.textContent||"0").replace(/[$,]/g,""))||0;
+  from=prev;
+  function tick(ts){
+    if(!start)start=ts;
+    const p=Math.min((ts-start)/duration,1);
+    const ease=1-Math.pow(1-p,3);
+    const val=Math.round(from+(target-from)*ease);
+    el.textContent="$"+val.toLocaleString();
+    if(p<1)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 function calc(){
   const s=S,gA=s.sA+s.bA+s.siA,gB=s.sB+s.bB+s.siB,nA=gA*(1-s.tA),nB=gB*(1-s.tB),tN=nA+nB;
   const mdA=s.dA+s.dA2,mdB=s.dB+s.dB2,dA=nA-mdA*12,dB=nB-mdB*12;
@@ -107,8 +122,10 @@ function pi(key,v){return`<div style="position:relative;width:100%"><input type=
 
 function donut(sA,sB,sz){
   sz=sz||140;const r=sz/2-10,cx=sz/2,cy=sz/2,c=2*Math.PI*r;
-  const a=Math.max(.01,Math.min(.99,sA)),d1=c*a,d2=c*(1-a);
-  return`<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#C9A84C" stroke-width="14" stroke-dasharray="${d1-3} ${c}" stroke-dashoffset="${c/4}" stroke-linecap="round"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#6B9BD2" stroke-width="14" stroke-dasharray="${d2-3} ${c}" stroke-dashoffset="${c/4-d1}" stroke-linecap="round"/></svg>`;
+  const a=Math.max(.01,Math.min(.99,sA));
+  const dA=c*a,dB=c*(1-a);
+  // Gold starts at top (12 o'clock), goes clockwise
+  return`<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" style="transform:rotate(-90deg)"><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#C9A84C" stroke-width="14" stroke-dasharray="${dA} ${c-dA}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#6B9BD2" stroke-width="14" stroke-dasharray="${dB} ${c-dB}" stroke-dashoffset="${-dA}"/></svg>`;
 }
 
 function bars(data,maxV,h){
@@ -125,15 +142,15 @@ function render(){
   if(tab==="input"){
     h+=`<div class="card"><div class="sec"><h3>👥 Partners</h3><p>Names personalize the numbers.</p></div><div class="pair"><input type="text" data-k="pA" data-name="1" value="${s.pA}" style="color:#C9A84C;font-family:Outfit;font-weight:500;font-size:clamp(13px,3.2vw,15px);padding:9px 10px"><input type="text" data-k="pB" data-name="1" value="${s.pB}" style="color:#6B9BD2;font-family:Outfit;font-weight:500;font-size:clamp(13px,3.2vw,15px);padding:9px 10px"></div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>💰 Annual Income</h3><p>Gross before taxes.</p></div><div class="plbl"><div></div><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
+    h+=`<div class="card"><div class="sec"><h3>💰 Annual Income</h3><p>Gross before taxes.</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
     [["Salary","sA","sB"],["Bonus","bA","bB"],["Side Hustle","siA","siB"]].forEach(([l,a,b])=>{
       h+=`<div class="lbl">${l}</div><div class="pair">${ci(a,s[a])}${ci(b,s[b])}</div><div class="dv"></div>`;
     });
-    h+=`<div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">Total Gross</span><div style="display:flex;gap:clamp(6px,2vw,12px)"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C">${fmt(c.gA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2">${fmt(c.gB)}</span></div></div></div>`;
+    h+=`<div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">Total Gross</span><div class="pair" style="margin:0;flex:1"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C;text-align:center">${fmt(c.gA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2;text-align:center">${fmt(c.gB)}</span></div></div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>🏛️ Tax Rates</h3><p>Federal + State + FICA combined.</p></div><div class="plbl"><div></div><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div><div class="lbl">All-in Effective Rate<span class="hint">Federal + State + FICA</span></div><div class="pair">${pi("tA",s.tA)}${pi("tB",s.tB)}</div><div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">After-Tax</span><div style="display:flex;gap:clamp(6px,2vw,12px)"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#5BAD78">${fmt(c.nA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#5BAD78">${fmt(c.nB)}</span></div></div></div>`;
+    h+=`<div class="card"><div class="sec"><h3>🏛️ Tax Rates</h3><p>Federal + State + FICA combined.</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div><div class="lbl">All-in Effective Rate<span class="hint">Federal + State + FICA</span></div><div class="pair">${pi("tA",s.tA)}${pi("tB",s.tB)}</div><div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">After-Tax</span><div class="pair" style="margin:0;flex:1"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C;text-align:center">${fmt(c.nA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2;text-align:center">${fmt(c.nB)}</span></div></div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>⚡ Individual Debts</h3><p>Monthly solo obligations.</p></div><div class="plbl"><div></div><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
+    h+=`<div class="card"><div class="sec"><h3>⚡ Individual Debts</h3><p>Monthly solo obligations.</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
     [["Student Loans","dA","dB"],["Car / Credit","dA2","dB2"]].forEach(([l,a,b])=>{
       h+=`<div class="lbl">${l}</div><div class="pair">${ci(a,s[a])}${ci(b,s[b])}</div><div class="dv"></div>`;
     });
@@ -162,7 +179,25 @@ function render(){
 
     h+=`<div class="card"><div class="sec"><h3>🍩 Split</h3></div><div style="text-align:center">${donut(ar.sA,ar.sB)}</div><div style="display:flex;gap:clamp(10px,3vw,20px);flex-wrap:wrap;justify-content:center;margin-top:8px">${[[s.pA,pct(ar.sA),"#C9A84C"],[s.pB,pct(ar.sB),"#6B9BD2"]].map(([n,sh,clr])=>`<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:${clr};display:inline-block"></span><span style="font-size:12px;color:#A09C90">${n}</span><span class="mono" style="font-size:13px;color:${clr}">${sh}</span></span>`).join("")}</div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>📊 All Models</h3></div>${bars([{name:"Prop.",a:c.pmA,b:c.pmB},{name:"Equal",a:c.amA,b:c.amB},{name:"Debt",a:c.dmA,b:c.dmB}])}</div>`;
+    // SVG grouped bar chart for All Models
+    const bData=[{name:"Proportional",a:c.pmA,b:c.pmB},{name:"Equal Allow.",a:c.amA,b:c.amB},{name:"Debt-Adj.",a:c.dmA,b:c.dmB}];
+    const bMax=Math.max(...bData.flatMap(d=>[d.a,d.b]),1);
+    const bW=600,bH=180,bPl=48,bPr=10,bPt=8,bPb=32,bGw=bW-bPl-bPr,bGh=bH-bPt-bPb;
+    const grpW=bGw/bData.length,barW=grpW*0.3,barGap=4;
+    let bSvg="";
+    // grid
+    for(let i=0;i<=4;i++){const v=(bMax/4)*i;const yy=bPt+bGh-(v/bMax)*bGh;bSvg+=`<line x1="${bPl}" x2="${bPl+bGw}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="#2A2A27" stroke-dasharray="3 3"/><text x="${bPl-5}" y="${yy.toFixed(1)}" fill="#706C60" font-size="9" font-family="JetBrains Mono" text-anchor="end" dominant-baseline="middle">${v>=1e3?"$"+(v/1e3).toFixed(1)+"k":"$"+Math.round(v)}</text>`}
+    bData.forEach((d,i)=>{
+      const gx=bPl+i*grpW+grpW/2;
+      const hA=Math.max(2,(d.a/bMax)*bGh),hB=Math.max(2,(d.b/bMax)*bGh);
+      const yA=bPt+bGh-hA,yB=bPt+bGh-hB;
+      bSvg+=`<rect x="${(gx-barW-barGap/2).toFixed(1)}" y="${yA.toFixed(1)}" width="${barW.toFixed(1)}" height="${hA.toFixed(1)}" rx="3" fill="#C9A84C"/>`;
+      bSvg+=`<rect x="${(gx+barGap/2).toFixed(1)}" y="${yB.toFixed(1)}" width="${barW.toFixed(1)}" height="${hB.toFixed(1)}" rx="3" fill="#6B9BD2"/>`;
+      bSvg+=`<text x="${(gx-barW/2-barGap/2).toFixed(1)}" y="${(yA-5).toFixed(1)}" fill="#C9A84C" font-size="9" font-family="JetBrains Mono" text-anchor="middle">${fmt(d.a)}</text>`;
+      bSvg+=`<text x="${(gx+barW/2+barGap/2).toFixed(1)}" y="${(yB-5).toFixed(1)}" fill="#6B9BD2" font-size="9" font-family="JetBrains Mono" text-anchor="middle">${fmt(d.b)}</text>`;
+      bSvg+=`<text x="${gx.toFixed(1)}" y="${(bH-6)}" fill="#706C60" font-size="10" font-family="Outfit" text-anchor="middle">${d.name}</text>`;
+    });
+    h+=`<div class="card"><div class="sec"><h3>📊 All Models</h3></div><svg width="100%" viewBox="0 0 ${bW} ${bH}" preserveAspectRatio="xMidYMid meet">${bSvg}</svg><div style="display:flex;gap:16px;justify-content:center;margin-top:8px"><span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#A09C90"><span style="width:10px;height:10px;border-radius:2px;background:#C9A84C;display:inline-block"></span>${s.pA}</span><span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#A09C90"><span style="width:10px;height:10px;border-radius:2px;background:#6B9BD2;display:inline-block"></span>${s.pB}</span></div></div>`;
 
     const pain=[{l:"Proportional",c:"#5BAD78",bg:"rgba(91,173,120,0.08)",bd:"rgba(91,173,120,0.2)",pA:c.dA>0?(c.pmA*12)/c.dA:0,pB:c.dB>0?(c.pmB*12)/c.dB:0},{l:"Equal Allowance",c:"#6B9BD2",bg:"rgba(107,155,210,0.08)",bd:"rgba(107,155,210,0.2)",pA:c.dA>0?(c.amA*12)/c.dA:0,pB:c.dB>0?(c.amB*12)/c.dB:0},{l:"Debt-Adjusted",c:"#D4956A",bg:"rgba(212,149,106,0.08)",bd:"rgba(212,149,106,0.2)",pA:c.dA>0?(c.dmA*12)/c.dA:0,pB:c.dB>0?(c.dmB*12)/c.dB:0}];
     h+=`<div class="card"><div class="sec"><h3>🌡️ Pain Index</h3><p>% of disposable to shared costs.</p></div>${pain.map(m=>`<div style="padding:clamp(8px,2vw,12px);background:${m.bg};border-radius:8px;border:1px solid ${m.bd};margin-bottom:8px"><div style="font-size:12px;font-weight:600;color:${m.c};margin-bottom:8px;text-align:center">${m.l}</div><div style="display:flex;justify-content:space-around">${[[s.pA,m.pA],[s.pB,m.pB]].map(([n,v])=>`<div style="text-align:center"><div style="font-size:11px;color:#706C60">${n}</div><div class="mono" style="font-size:clamp(14px,3.5vw,18px);color:${m.c};margin-top:2px">${pct(v)}</div></div>`).join("")}</div><div style="font-size:11px;color:#706C60;margin-top:8px;padding-top:8px;border-top:1px solid ${m.bd};text-align:center">Spread: <strong style="color:${Math.abs(m.pA-m.pB)>.2?"#D4716A":"#5BAD78"}">${pct(Math.abs(m.pA-m.pB))}</strong></div></div>`).join("")}</div>`;
@@ -173,21 +208,98 @@ function render(){
     const habits=[{e:"🍕",l:"Food delivery",m:150},{e:"☕",l:"Daily coffee",m:120},{e:"👗",l:"Impulse shopping",m:200},{e:"📺",l:"Streaming subs",m:65},{e:"🚗",l:"Ride-shares",m:180},{e:"🍷",l:"Bars & nightlife",m:250}].map(i=>({...i,f:Math.round(i.m*mul)}));
     const maxF=Math.max(...habits.map(i=>i.f));
 
-    h+=`<div class="hero"><p style="font-size:clamp(11px,2.8vw,15px);color:#706C60;margin-bottom:8px;position:relative">Invest <b style="color:#C9A84C">${fmt(s.ms)}/mo</b> at ${pct(s.ir)} for ${s.iy}yr</p><div class="big">${fmt(c.fv)}</div><div style="display:flex;justify-content:center;gap:clamp(16px,5vw,36px);margin-top:12px;position:relative;flex-wrap:wrap"><div><div style="font-size:clamp(9px,2vw,11px);color:#706C60;text-transform:uppercase;letter-spacing:1px">You put in</div><div class="mono" style="font-size:clamp(14px,3.5vw,18px);color:#6B9BD2;margin-top:2px">${fmt(c.tc)}</div></div><div style="width:1px;background:#333330"></div><div><div style="font-size:clamp(9px,2vw,11px);color:#706C60;text-transform:uppercase;letter-spacing:1px">Market gives</div><div class="mono" style="font-size:clamp(14px,3.5vw,18px);color:#5BAD78;margin-top:2px">${fmt(c.fv-c.tc)}</div></div></div></div>`;
+    // ── HERO BOX ──
+    h+=`<div class="hero">
+      <p style="font-size:clamp(11px,2.8vw,14px);color:#706C60;margin-bottom:10px;position:relative">Invest <b style="color:#C9A84C">${fmt(s.ms)}/mo</b> at ${pct(s.ir)} for <b style="color:#C9A84C">${s.iy} years</b></p>
+      <div class="big" id="heroVal">$0</div>
+      <div style="display:flex;justify-content:center;gap:clamp(20px,6vw,40px);margin-top:16px;position:relative;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-size:clamp(9px,2vw,11px);color:#706C60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">💵 You put in</div><div class="mono" style="font-size:clamp(16px,4vw,20px);color:#6B9BD2">${fmt(c.tc)}</div></div>
+        <div style="width:1px;height:40px;background:#333330;align-self:center"></div>
+        <div style="text-align:center"><div style="font-size:clamp(9px,2vw,11px);color:#706C60;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">📈 Market gives</div><div class="mono" style="font-size:clamp(16px,4vw,20px);color:#5BAD78">${fmt(c.fv-c.tc)}</div></div>
+      </div>
+      <div style="margin-top:14px;font-size:clamp(10px,2.3vw,12px);color:#706C60;position:relative">That's a <b style="color:#C9A84C">${c.tc>0?((c.fv/c.tc)).toFixed(1):"∞"}x</b> return on your savings</div>
+    </div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>⚙️ Adjust Scenario</h3></div><div class="lbl">Monthly Savings<span class="hint">Redirect from spending drama</span></div>${ci("ms",s.ms)}<div class="dv"></div><div class="lbl">Annual Return<span class="hint">S&P ≈ 10% · Conservative ≈ 7%</span></div>${pi("ir",s.ir)}<div class="dv"></div><div class="lbl" style="margin-bottom:6px">Time Horizon</div><div style="display:flex;align-items:center;gap:10px"><input type="range" min="5" max="40" value="${s.iy}" data-k="iy" data-range="1"><span class="mono" style="font-size:14px;color:#C9A84C;white-space:nowrap">${s.iy}yr</span></div></div>`;
+    // ── ADJUST SCENARIO ──
+    h+=`<div class="card">
+      <div class="sec"><h3>⚙️ Adjust Scenario</h3><p>Change the numbers to see your future.</p></div>
+      <div class="lbl">Monthly Savings<span class="hint">How much could you redirect from spending?</span></div>${ci("ms",s.ms)}<div class="dv"></div>
+      <div class="lbl">Annual Return<span class="hint">S&P 500 avg ≈ 10% · Conservative ≈ 7%</span></div>${pi("ir",s.ir)}<div class="dv"></div>
+      <div class="lbl" style="margin-bottom:6px">Time Horizon</div>
+      <div style="display:flex;align-items:center;gap:12px"><input type="range" min="5" max="40" value="${s.iy}" data-k="iy" data-range="1"><span class="mono" style="font-size:clamp(14px,3.5vw,16px);color:#C9A84C;white-space:nowrap">${s.iy} years</span></div>
+    </div>`;
 
-    // Growth bars
-    const pts=[];for(let y=0;y<=s.iy;y+=Math.max(1,Math.floor(s.iy/8))){const m=y*12,co=s.ms*m,tot=r>0?s.ms*((Math.pow(1+r,m)-1)/r):co;pts.push({name:"Yr"+y,a:Math.round(tot),b:Math.round(co)})}
-    h+=`<div class="card"><div class="sec"><h3>📈 Growth</h3><p>Gold = total, Blue = contributions.</p></div>${bars(pts,pts[pts.length-1]?.a||1)}</div>`;
+    // ── GROWTH AREA CHART ──
+    const pts=[];for(let y=0;y<=s.iy;y++){const m=y*12,co=s.ms*m,tot=r>0?s.ms*((Math.pow(1+r,m)-1)/r):co;pts.push({y,co:Math.round(co),tot:Math.round(tot)})}
+    const maxYv=Math.max(pts[pts.length-1]?.tot||1,1);
+    const svgW=700,svgH=220,pL=52,pR=12,pTp=14,pBt=28;
+    const gW=svgW-pL-pR,gH=svgH-pTp-pBt;
+    const gpx=i=>pL+(i/(pts.length-1||1))*gW;
+    const gpy=v=>pTp+gH-(v/maxYv)*gH;
+    const totLine=pts.map((p,i)=>`${i===0?"M":"L"}${gpx(i).toFixed(1)},${gpy(p.tot).toFixed(1)}`).join(" ");
+    const conLine=pts.map((p,i)=>`${i===0?"M":"L"}${gpx(i).toFixed(1)},${gpy(p.co).toFixed(1)}`).join(" ");
+    const totArea=totLine+` L${gpx(pts.length-1).toFixed(1)},${gpy(0).toFixed(1)} L${gpx(0).toFixed(1)},${gpy(0).toFixed(1)} Z`;
+    const conArea=conLine+` L${gpx(pts.length-1).toFixed(1)},${gpy(0).toFixed(1)} L${gpx(0).toFixed(1)},${gpy(0).toFixed(1)} Z`;
+    let gridY="",gridX="";
+    for(let i=0;i<=5;i++){const v=(maxYv/5)*i;const yy=gpy(v).toFixed(1);gridY+=`<line x1="${pL}" x2="${pL+gW}" y1="${yy}" y2="${yy}" stroke="#2A2A27" stroke-dasharray="3 3"/><text x="${pL-6}" y="${yy}" fill="#706C60" font-size="9" font-family="JetBrains Mono" text-anchor="end" dominant-baseline="middle">${v>=1e3?"$"+(v/1e3).toFixed(0)+"k":"$"+Math.round(v)}</text>`}
+    const xStp=Math.max(1,Math.floor(s.iy/6));pts.forEach((p,i)=>{if(p.y%xStp===0||i===pts.length-1)gridX+=`<text x="${gpx(i).toFixed(1)}" y="${svgH-5}" fill="#706C60" font-size="10" font-family="Outfit" text-anchor="middle">Yr ${p.y}</text>`});
+    // End-point labels
+    const lastPt=pts[pts.length-1];
+    const endLabels=`<circle cx="${gpx(pts.length-1).toFixed(1)}" cy="${gpy(lastPt.tot).toFixed(1)}" r="4" fill="#C9A84C"/><text x="${gpx(pts.length-1)-8}" y="${gpy(lastPt.tot)-10}" fill="#C9A84C" font-size="10" font-family="JetBrains Mono" font-weight="600" text-anchor="end">${fmt(lastPt.tot)}</text><circle cx="${gpx(pts.length-1).toFixed(1)}" cy="${gpy(lastPt.co).toFixed(1)}" r="3" fill="#6B9BD2"/><text x="${gpx(pts.length-1)-8}" y="${gpy(lastPt.co)-8}" fill="#6B9BD2" font-size="9" font-family="JetBrains Mono" text-anchor="end">${fmt(lastPt.co)}</text>`;
 
-    h+=`<div class="card gl"><div class="sec"><h3>🔥 What You're Actually Buying</h3><p>Habits invested at ${pct(s.ir)} over ${s.iy}yr.</p></div>${habits.map(i=>`<div class="hab"><span style="font-size:clamp(16px,4vw,22px);flex-shrink:0">${i.e}</span><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:clamp(11px,2.8vw,13px);color:#A09C90">${i.l}</span><span class="mono" style="font-size:clamp(10px,2.2vw,11px);color:#706C60">${fmt(i.m)}/mo</span></div><div class="bar"><div class="fill" style="width:${Math.min(100,(i.f/maxF)*100)}%"></div></div></div><div style="text-align:right;flex-shrink:0"><div class="mono" style="font-size:clamp(13px,3.2vw,16px);color:#C9A84C">${fmt(i.f)}</div><div style="font-size:9px;color:#706C60">in ${s.iy}yr</div></div></div>`).join("")}<div class="gtip">💡 <b>Reframe:</b> That ${fmt(habits[0].m)}/mo food delivery isn't costing ${fmt(habits[0].m)}. It's costing <b>${fmt(habits[0].f)}</b> in future wealth.</div></div>`;
+    h+=`<div class="card"><div class="sec"><h3>📈 Compound Growth</h3><p>The gold area is what compound interest adds for free.</p></div>
+    <svg width="100%" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="aG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C9A84C" stop-opacity="0.35"/><stop offset="100%" stop-color="#C9A84C" stop-opacity="0.02"/></linearGradient>
+        <linearGradient id="aB" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6B9BD2" stop-opacity="0.15"/><stop offset="100%" stop-color="#6B9BD2" stop-opacity="0.02"/></linearGradient>
+      </defs>
+      ${gridY}${gridX}
+      <path d="${totArea}" fill="url(#aG)"/>
+      <path d="${totLine}" fill="none" stroke="#C9A84C" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="${conArea}" fill="url(#aB)"/>
+      <path d="${conLine}" fill="none" stroke="#6B9BD2" stroke-width="1.5" stroke-dasharray="6 3" stroke-linejoin="round"/>
+      ${endLabels}
+    </svg>
+    <div style="display:flex;gap:clamp(12px,4vw,24px);justify-content:center;margin-top:10px">
+      <span style="display:flex;align-items:center;gap:5px;font-size:clamp(10px,2.5vw,12px);color:#A09C90"><span style="width:16px;height:3px;background:#C9A84C;display:inline-block;border-radius:2px"></span>Total Value</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:clamp(10px,2.5vw,12px);color:#A09C90"><span style="width:16px;height:2px;border-top:2px dashed #6B9BD2;display:inline-block"></span>Contributed</span>
+    </div></div>`;
 
-    h+=`<div class="rfr"><span style="font-size:clamp(22px,6vw,30px);flex-shrink:0">💡</span><div><h3 style="font-family:'Playfair Display';font-size:clamp(14px,3.5vw,18px);color:#F5F0E3;margin-bottom:6px">The Conversation Reframe</h3><p style="font-size:clamp(12px,2.8vw,14px);color:#A09C90;line-height:1.7">It was never about who pays for DoorDash. It's about takeout this month — or <b style="color:#C9A84C">${fmt(c.fv)}</b> in ${s.iy} years.</p></div></div>`;
+    // ── WHAT YOU'RE BUYING ──
+    h+=`<div class="card gl"><div class="sec"><h3>🔥 What You're Actually Buying</h3><p>The true cost of monthly habits — invested at ${pct(s.ir)} over ${s.iy} years.</p></div>`;
+    habits.forEach(i=>{
+      h+=`<div class="hab">
+        <span style="font-size:clamp(16px,4vw,22px);flex-shrink:0">${i.e}</span>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:clamp(11px,2.8vw,13px);color:#A09C90">${i.l}</span>
+            <span class="mono" style="font-size:clamp(10px,2.2vw,11px);color:#706C60">${fmt(i.m)}/mo</span>
+          </div>
+          <div class="bar"><div class="fill" style="width:${Math.min(100,(i.f/maxF)*100)}%"></div></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="mono" style="font-size:clamp(13px,3.2vw,16px);color:#C9A84C">${fmt(i.f)}</div>
+          <div style="font-size:clamp(8px,2vw,10px);color:#706C60">in ${s.iy}yr</div>
+        </div>
+      </div>`;
+    });
+    h+=`<div class="gtip">💡 <b>The reframe:</b> That ${fmt(habits[0].m)}/mo food delivery habit isn't costing you ${fmt(habits[0].m)}. It's costing you <b>${fmt(habits[0].f)}</b> in future wealth. Every spending argument is really an investment decision in disguise.</div></div>`;
+
+    // ── CONVERSATION REFRAME ──
+    h+=`<div class="rfr">
+      <span style="font-size:clamp(24px,6vw,32px);flex-shrink:0">💡</span>
+      <div>
+        <h3 style="font-family:'Playfair Display';font-size:clamp(15px,3.8vw,19px);color:#F5F0E3;margin-bottom:8px">The Conversation Reframe</h3>
+        <p style="font-size:clamp(12px,2.8vw,14px);color:#A09C90;line-height:1.7">The argument was never about who pays for DoorDash. It's about whether you'd rather have a few extra takeout meals this month — or <b style="color:#C9A84C">${fmt(c.fv)}</b> in ${s.iy} years. When couples see the future value of daily spending drama, the "who pays" fight transforms into a "let's build this together" conversation.</p>
+      </div>
+    </div>`;
   }
 
   $("#content").innerHTML=h;
   bind();
+  // Animate hero number if on wealth tab
+  const heroEl=document.getElementById("heroVal");
+  if(heroEl){animCount(heroEl,Math.round(calc().fv),1400);}
 }
 
 function bind(){
