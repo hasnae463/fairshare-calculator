@@ -1,18 +1,3 @@
 {
   "cleanUrls": true
 }
-```
-- Commit
-
-**Then upload calculator.html:**
-- Click **"Add file"** → **"Upload files"**
-- Upload the `calculator.html` file from the outputs I gave you earlier
-- Commit
-
-After both are done, your repo should have:
-```
-Calculator/          ← old folder (ignore for now)
-README.md
-calculator.html      ← NEW - upload this
-index.html
-vercel.json
