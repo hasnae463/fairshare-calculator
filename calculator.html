@@ -77,11 +77,30 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </div>
 </div>
 
+<!-- LANGUAGE & PERIOD BAR -->
+<div style="border-bottom:1px solid #2A2A27;background:#181816;padding:6px 0">
+<div class="w" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+  <div style="display:flex;gap:4px;align-items:center">
+    <span style="font-size:11px;color:#706C60;margin-right:4px">🌍</span>
+    <button onclick="setLang('en')" class="lbtn" data-lang="en" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:rgba(201,168,76,0.1);color:#C9A84C;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit">EN</button>
+    <button onclick="setLang('fr')" class="lbtn" data-lang="fr" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:transparent;color:#706C60;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit">FR</button>
+    <button onclick="setLang('es')" class="lbtn" data-lang="es" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:transparent;color:#706C60;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit">ES</button>
+    <button onclick="setLang('ar')" class="lbtn" data-lang="ar" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:transparent;color:#706C60;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit">عربي</button>
+  </div>
+  <div style="display:flex;gap:4px;align-items:center">
+    <span style="font-size:11px;color:#706C60;margin-right:4px">📅</span>
+    <button onclick="setPeriod('weekly')" class="pbtn" data-period="weekly" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:transparent;color:#706C60;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit" id="pWeekly">Weekly</button>
+    <button onclick="setPeriod('monthly')" class="pbtn" data-period="monthly" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:rgba(201,168,76,0.1);color:#C9A84C;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit" id="pMonthly">Monthly</button>
+    <button onclick="setPeriod('annual')" class="pbtn" data-period="annual" style="padding:4px 10px;border-radius:6px;border:1px solid #333330;background:transparent;color:#706C60;font-size:11px;font-weight:600;cursor:pointer;font-family:Outfit" id="pAnnual">Annual</button>
+  </div>
+</div>
+</div>
+
 <!-- TABS -->
 <div class="tabs"><div class="w">
-  <button class="on" onclick="go('input')">📋 Data Entry</button>
-  <button onclick="go('dashboard')">📊 Dashboard</button>
-  <button onclick="go('wealth')">🚀 Wealth</button>
+  <button class="on" onclick="go('input')" id="tabInput">📋 Data Entry</button>
+  <button onclick="go('dashboard')" id="tabDash">📊 Dashboard</button>
+  <button onclick="go('wealth')" id="tabWealth">🚀 Wealth</button>
 </div></div>
 
 <!-- CONTENT -->
@@ -157,10 +176,143 @@ document.getElementById("gateEmail").addEventListener("keydown",e=>{if(e.key==="
 
 <script>
 const S={pA:"Partner A",pB:"Partner B",sA:120000,sB:65000,bA:15000,bB:5000,siA:0,siB:0,dA:450,dB:280,dA2:350,dB2:75,rent:2800,util:350,groc:800,ins:600,trans:400,din:500,subs:150,sav:500,oth:200,tA:.30,tB:.22,ir:.07,iy:20,ms:200};
-let tab="input",mdl="proportional";
+let tab="input",mdl="proportional",period="monthly",lang="en";
+
+// ── TRANSLATIONS ──
+const T={
+  en:{
+    partners:"Partners",partnersDesc:"Names personalize the numbers.",
+    income:"Annual Income",incomeDesc:"Gross before taxes.",
+    salary:"Salary",bonus:"Bonus",sideHustle:"Side Hustle",totalGross:"Total Gross",
+    taxRates:"Tax Rates",taxDesc:"Federal + State + FICA combined.",effectiveRate:"All-in Effective Rate",taxHint:"Federal + State + FICA",afterTax:"After-Tax",
+    debts:"Individual Debts",debtsDesc:"Monthly solo obligations.",studentLoans:"Student Loans",carCredit:"Car / Credit",
+    jointExp:"Joint Expenses",jointDesc:"Monthly shared costs.",
+    rent:"Rent",utilities:"Utilities",groceries:"Groceries",insurance:"Insurance",transport:"Transport",dining:"Dining",subscriptions:"Subscriptions",savings:"Savings",other:"Other",
+    totalMonthly:"Total Monthly",totalWeekly:"Total Weekly",totalAnnual:"Total Annual",
+    seeResults:"See Your Results →",
+    fairnessModel:"Fairness Model",toggleCompare:"Toggle to compare.",
+    proportional:"Proportional",equalAllow:"Equal Allow.",debtAdj:"Debt-Adj.",
+    propDesc:"<b>Proportional:</b> Each contributes based on after-tax income share.",
+    allowDesc:"<b>Equal Allowance:</b> Both end up with identical personal spending money.",
+    debtDesc:"<b>Debt-Adjusted:</b> Subtracts debts before calculating shares.",
+    monthlyBreak:"Monthly Breakdown",weeklyBreak:"Weekly Breakdown",annualBreak:"Annual Breakdown",
+    contribution:"Contribution",ofShared:"of shared",pocketMoney:"Pocket Money",
+    painIndex:"Pain Index",painDesc:"Who feels the financial squeeze more.",
+    ofIncome:"of income goes to shared bills",
+    modelComparison:"Model Comparison",compareDesc:"Side by side.",
+    compGrowth:"Compound Growth",compDesc:"The gold area is what compound interest adds for free.",
+    investParams:"Investment Parameters",monthlyInvest:"Monthly Investment",annualReturn:"Annual Return",timeHorizon:"Time Horizon",years:"years",
+    futureValue:"Future Value",contributed:"Contributed",compoundGain:"Compound Gains",
+    whatBuying:"What You're Actually Buying",whatBuyingDesc:"The true cost of monthly habits",
+    convReframe:"The Conversation Reframe",
+    monthly:"Monthly",weekly:"Weekly",annual:"Annual",
+    mo:"/mo",wk:"/wk",yr:"/yr",
+    period:"Period",
+    dataEntry:"Data Entry",dashboard:"Dashboard",wealth:"Wealth",
+    langLabel:"Language"
+  },
+  fr:{
+    partners:"Partenaires",partnersDesc:"Les noms personnalisent les chiffres.",
+    income:"Revenu Annuel",incomeDesc:"Brut avant impôts.",
+    salary:"Salaire",bonus:"Prime",sideHustle:"Activité Secondaire",totalGross:"Total Brut",
+    taxRates:"Taux d'Imposition",taxDesc:"Fédéral + État + Charges combinés.",effectiveRate:"Taux Effectif Global",taxHint:"Fédéral + État + Charges",afterTax:"Après Impôts",
+    debts:"Dettes Individuelles",debtsDesc:"Obligations mensuelles personnelles.",studentLoans:"Prêts Étudiants",carCredit:"Auto / Crédit",
+    jointExp:"Dépenses Communes",jointDesc:"Coûts mensuels partagés.",
+    rent:"Loyer",utilities:"Charges",groceries:"Courses",insurance:"Assurance",transport:"Transport",dining:"Restaurant",subscriptions:"Abonnements",savings:"Épargne",other:"Autre",
+    totalMonthly:"Total Mensuel",totalWeekly:"Total Hebdomadaire",totalAnnual:"Total Annuel",
+    seeResults:"Voir les Résultats →",
+    fairnessModel:"Modèle d'Équité",toggleCompare:"Basculer pour comparer.",
+    proportional:"Proportionnel",equalAllow:"Alloc. Égale",debtAdj:"Ajust. Dettes",
+    propDesc:"<b>Proportionnel :</b> Chacun contribue selon sa part de revenu net.",
+    allowDesc:"<b>Allocation Égale :</b> Les deux finissent avec le même argent personnel.",
+    debtDesc:"<b>Ajusté aux Dettes :</b> Soustrait les dettes avant de calculer les parts.",
+    monthlyBreak:"Répartition Mensuelle",weeklyBreak:"Répartition Hebdomadaire",annualBreak:"Répartition Annuelle",
+    contribution:"Contribution",ofShared:"du partagé",pocketMoney:"Argent de Poche",
+    painIndex:"Indice de Pression",painDesc:"Qui ressent plus la pression financière.",
+    ofIncome:"du revenu va aux dépenses communes",
+    modelComparison:"Comparaison des Modèles",compareDesc:"Côte à côte.",
+    compGrowth:"Croissance Composée",compDesc:"La zone dorée est ce que les intérêts composés ajoutent gratuitement.",
+    investParams:"Paramètres d'Investissement",monthlyInvest:"Investissement Mensuel",annualReturn:"Rendement Annuel",timeHorizon:"Horizon",years:"ans",
+    futureValue:"Valeur Future",contributed:"Contribué",compoundGain:"Gains Composés",
+    whatBuying:"Ce que Vous Achetez Vraiment",whatBuyingDesc:"Le vrai coût des habitudes mensuelles",
+    convReframe:"Le Recadrage de Conversation",
+    monthly:"Mensuel",weekly:"Hebdomadaire",annual:"Annuel",
+    mo:"/mois",wk:"/sem",yr:"/an",
+    period:"Période",
+    dataEntry:"Données",dashboard:"Tableau de Bord",wealth:"Patrimoine",
+    langLabel:"Langue"
+  },
+  es:{
+    partners:"Pareja",partnersDesc:"Los nombres personalizan los números.",
+    income:"Ingreso Anual",incomeDesc:"Bruto antes de impuestos.",
+    salary:"Salario",bonus:"Bono",sideHustle:"Ingreso Extra",totalGross:"Total Bruto",
+    taxRates:"Tasas de Impuestos",taxDesc:"Federal + Estatal + Seguridad Social.",effectiveRate:"Tasa Efectiva Total",taxHint:"Federal + Estatal + SS",afterTax:"Después de Impuestos",
+    debts:"Deudas Individuales",debtsDesc:"Obligaciones mensuales personales.",studentLoans:"Préstamos Estudiantiles",carCredit:"Auto / Crédito",
+    jointExp:"Gastos Compartidos",jointDesc:"Costos mensuales compartidos.",
+    rent:"Alquiler",utilities:"Servicios",groceries:"Compras",insurance:"Seguro",transport:"Transporte",dining:"Restaurantes",subscriptions:"Suscripciones",savings:"Ahorros",other:"Otro",
+    totalMonthly:"Total Mensual",totalWeekly:"Total Semanal",totalAnnual:"Total Anual",
+    seeResults:"Ver Resultados →",
+    fairnessModel:"Modelo de Equidad",toggleCompare:"Alternar para comparar.",
+    proportional:"Proporcional",equalAllow:"Asign. Igual",debtAdj:"Ajust. Deudas",
+    propDesc:"<b>Proporcional:</b> Cada uno contribuye según su parte del ingreso neto.",
+    allowDesc:"<b>Asignación Igual:</b> Ambos terminan con el mismo dinero personal.",
+    debtDesc:"<b>Ajustado por Deudas:</b> Resta las deudas antes de calcular las partes.",
+    monthlyBreak:"Desglose Mensual",weeklyBreak:"Desglose Semanal",annualBreak:"Desglose Anual",
+    contribution:"Contribución",ofShared:"del compartido",pocketMoney:"Dinero Personal",
+    painIndex:"Índice de Presión",painDesc:"Quién siente más la presión financiera.",
+    ofIncome:"del ingreso va a gastos compartidos",
+    modelComparison:"Comparación de Modelos",compareDesc:"Lado a lado.",
+    compGrowth:"Crecimiento Compuesto",compDesc:"El área dorada es lo que el interés compuesto agrega gratis.",
+    investParams:"Parámetros de Inversión",monthlyInvest:"Inversión Mensual",annualReturn:"Rendimiento Anual",timeHorizon:"Horizonte",years:"años",
+    futureValue:"Valor Futuro",contributed:"Contribuido",compoundGain:"Ganancias Compuestas",
+    whatBuying:"Lo que Realmente Compras",whatBuyingDesc:"El costo real de los hábitos mensuales",
+    convReframe:"El Reencuadre de Conversación",
+    monthly:"Mensual",weekly:"Semanal",annual:"Anual",
+    mo:"/mes",wk:"/sem",yr:"/año",
+    period:"Período",
+    dataEntry:"Datos",dashboard:"Panel",wealth:"Patrimonio",
+    langLabel:"Idioma"
+  },
+  ar:{
+    partners:"الشريكان",partnersDesc:"الأسماء تضفي طابعاً شخصياً.",
+    income:"الدخل السنوي",incomeDesc:"الإجمالي قبل الضرائب.",
+    salary:"الراتب",bonus:"المكافأة",sideHustle:"دخل إضافي",totalGross:"الإجمالي",
+    taxRates:"معدلات الضرائب",taxDesc:"الفيدرالية + الولاية + التأمينات.",effectiveRate:"المعدل الفعلي الإجمالي",taxHint:"فيدرالي + ولاية + تأمينات",afterTax:"بعد الضرائب",
+    debts:"الديون الفردية",debtsDesc:"الالتزامات الشهرية الشخصية.",studentLoans:"قروض الطلاب",carCredit:"سيارة / ائتمان",
+    jointExp:"المصاريف المشتركة",jointDesc:"التكاليف الشهرية المشتركة.",
+    rent:"الإيجار",utilities:"الخدمات",groceries:"البقالة",insurance:"التأمين",transport:"النقل",dining:"المطاعم",subscriptions:"الاشتراكات",savings:"الادخار",other:"أخرى",
+    totalMonthly:"الإجمالي الشهري",totalWeekly:"الإجمالي الأسبوعي",totalAnnual:"الإجمالي السنوي",
+    seeResults:"← عرض النتائج",
+    fairnessModel:"نموذج العدالة",toggleCompare:"بدّل للمقارنة.",
+    proportional:"تناسبي",equalAllow:"بدل متساوٍ",debtAdj:"معدّل الديون",
+    propDesc:"<b>تناسبي:</b> كل شريك يساهم حسب نسبة دخله الصافي.",
+    allowDesc:"<b>بدل متساوٍ:</b> كلاهما ينتهي بنفس المبلغ الشخصي.",
+    debtDesc:"<b>معدّل الديون:</b> يطرح الديون قبل حساب الحصص.",
+    monthlyBreak:"التوزيع الشهري",weeklyBreak:"التوزيع الأسبوعي",annualBreak:"التوزيع السنوي",
+    contribution:"المساهمة",ofShared:"من المشترك",pocketMoney:"المصروف الشخصي",
+    painIndex:"مؤشر الضغط",painDesc:"من يشعر بالضغط المالي أكثر.",
+    ofIncome:"من الدخل يذهب للمصاريف المشتركة",
+    modelComparison:"مقارنة النماذج",compareDesc:"جنباً إلى جنب.",
+    compGrowth:"النمو المركب",compDesc:"المنطقة الذهبية هي ما تضيفه الفائدة المركبة مجاناً.",
+    investParams:"معايير الاستثمار",monthlyInvest:"الاستثمار الشهري",annualReturn:"العائد السنوي",timeHorizon:"الأفق الزمني",years:"سنوات",
+    futureValue:"القيمة المستقبلية",contributed:"المساهمات",compoundGain:"أرباح مركبة",
+    whatBuying:"ما تشتريه فعلاً",whatBuyingDesc:"التكلفة الحقيقية للعادات الشهرية",
+    convReframe:"إعادة صياغة المحادثة",
+    monthly:"شهري",weekly:"أسبوعي",annual:"سنوي",
+    mo:"/شهر",wk:"/أسبوع",yr:"/سنة",
+    period:"الفترة",
+    dataEntry:"البيانات",dashboard:"لوحة القيادة",wealth:"الثروة",
+    langLabel:"اللغة"
+  }
+};
+
+const t=k=>T[lang][k]||T.en[k]||k;
 const $=s=>document.querySelector(s);
+const periodMul=()=>period==="weekly"?1/4.33:period==="annual"?12:1;
+const fmtP=n=>{const v=n*periodMul();return(v==null||isNaN(v))?"$0":v<0?"-$"+Math.abs(Math.round(v)).toLocaleString():"$"+Math.round(v).toLocaleString()};
 const fmt=n=>(n==null||isNaN(n))?"$0":n<0?"-$"+Math.abs(Math.round(n)).toLocaleString():"$"+Math.round(n).toLocaleString();
 const pct=n=>(n*100).toFixed(1)+"%";
+const pSuffix=()=>period==="weekly"?t("wk"):period==="annual"?t("yr"):t("mo");
 
 function animCount(el,target,duration){
   duration=duration||1400;
@@ -219,38 +371,39 @@ function render(){
   let h="";
 
   if(tab==="input"){
-    h+=`<div class="card"><div class="sec"><h3>👥 Partners</h3><p>Names personalize the numbers.</p></div><div class="pair"><input type="text" data-k="pA" data-name="1" value="${s.pA}" style="color:#C9A84C;font-family:Outfit;font-weight:500;font-size:clamp(13px,3.2vw,15px);padding:9px 10px"><input type="text" data-k="pB" data-name="1" value="${s.pB}" style="color:#6B9BD2;font-family:Outfit;font-weight:500;font-size:clamp(13px,3.2vw,15px);padding:9px 10px"></div></div>`;
+    h+=`<div class="card"><div class="sec"><h3>👥 ${t("partners")}</h3><p>${t("partnersDesc")}</p></div><div class="pair"><input type="text" data-k="pA" data-name="1" value="${s.pA}" style="color:#C9A84C;font-family:Outfit;font-weight:500;font-size:clamp(13px,3.2vw,15px);padding:9px 10px"><input type="text" data-k="pB" data-name="1" value="${s.pB}" style="color:#6B9BD2;font-family:Outfit;font-weight:500;font-size:clamp(13px,3.2vw,15px);padding:9px 10px"></div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>💰 Annual Income</h3><p>Gross before taxes.</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
-    [["Salary","sA","sB"],["Bonus","bA","bB"],["Side Hustle","siA","siB"]].forEach(([l,a,b])=>{
+    h+=`<div class="card"><div class="sec"><h3>💰 ${t("income")}</h3><p>${t("incomeDesc")}</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
+    [[t("salary"),"sA","sB"],[t("bonus"),"bA","bB"],[t("sideHustle"),"siA","siB"]].forEach(([l,a,b])=>{
       h+=`<div class="lbl">${l}</div><div class="pair">${ci(a,s[a])}${ci(b,s[b])}</div><div class="dv"></div>`;
     });
-    h+=`<div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">Total Gross</span><div class="pair" style="margin:0;flex:1"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C;text-align:center">${fmt(c.gA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2;text-align:center">${fmt(c.gB)}</span></div></div></div>`;
+    h+=`<div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">${t("totalGross")}</span><div class="pair" style="margin:0;flex:1"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C;text-align:center">${fmt(c.gA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2;text-align:center">${fmt(c.gB)}</span></div></div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>🏛️ Tax Rates</h3><p>Federal + State + FICA combined.</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div><div class="lbl">All-in Effective Rate<span class="hint">Federal + State + FICA</span></div><div class="pair">${pi("tA",s.tA)}${pi("tB",s.tB)}</div><div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">After-Tax</span><div class="pair" style="margin:0;flex:1"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C;text-align:center">${fmt(c.nA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2;text-align:center">${fmt(c.nB)}</span></div></div></div>`;
+    h+=`<div class="card"><div class="sec"><h3>🏛️ ${t("taxRates")}</h3><p>${t("taxDesc")}</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div><div class="lbl">${t("effectiveRate")}<span class="hint">${t("taxHint")}</span></div><div class="pair">${pi("tA",s.tA)}${pi("tB",s.tB)}</div><div class="tot"><span style="font-weight:600;font-size:clamp(12px,3vw,14px)">${t("afterTax")}</span><div class="pair" style="margin:0;flex:1"><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#C9A84C;text-align:center">${fmt(c.nA)}</span><span class="mono" style="font-size:clamp(13px,3vw,15px);color:#6B9BD2;text-align:center">${fmt(c.nB)}</span></div></div></div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>⚡ Individual Debts</h3><p>Monthly solo obligations.</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
-    [["Student Loans","dA","dB"],["Car / Credit","dA2","dB2"]].forEach(([l,a,b])=>{
+    h+=`<div class="card"><div class="sec"><h3>⚡ ${t("debts")}</h3><p>${t("debtsDesc")}</p></div><div class="plbl"><span style="color:#C9A84C">${s.pA}</span><span style="color:#6B9BD2">${s.pB}</span></div>`;
+    [[t("studentLoans"),"dA","dB"],[t("carCredit"),"dA2","dB2"]].forEach(([l,a,b])=>{
       h+=`<div class="lbl">${l}</div><div class="pair">${ci(a,s[a])}${ci(b,s[b])}</div><div class="dv"></div>`;
     });
     h+=`</div>`;
 
-    h+=`<div class="card"><div class="sec"><h3>🏠 Joint Expenses</h3><p>Monthly shared costs.</p></div>`;
-    [["Rent","rent"],["Utilities","util"],["Groceries","groc"],["Insurance","ins"],["Transport","trans"],["Dining","din"],["Subscriptions","subs"],["Savings","sav"],["Other","oth"]].forEach(([l,k])=>{
+    h+=`<div class="card"><div class="sec"><h3>🏠 ${t("jointExp")}</h3><p>${t("jointDesc")}</p></div>`;
+    [[t("rent"),"rent"],[t("utilities"),"util"],[t("groceries"),"groc"],[t("insurance"),"ins"],[t("transport"),"trans"],[t("dining"),"din"],[t("subscriptions"),"subs"],[t("savings"),"sav"],[t("other"),"oth"]].forEach(([l,k])=>{
       h+=`<div class="lbl">${l}</div>${ci(k,s[k])}<div class="dv"></div>`;
     });
-    h+=`<div class="tot"><span style="font-weight:600">Total Monthly</span><span class="mono" style="font-size:clamp(16px,4vw,20px);color:#C9A84C">${fmt(c.mE)}<span style="font-size:11px;color:#706C60;font-weight:400">/mo</span></span></div></div>`;
+    const totalLabel=period==="weekly"?t("totalWeekly"):period==="annual"?t("totalAnnual"):t("totalMonthly");
+    h+=`<div class="tot"><span style="font-weight:600">${totalLabel}</span><span class="mono" style="font-size:clamp(16px,4vw,20px);color:#C9A84C">${fmtP(c.mE)}<span style="font-size:11px;color:#706C60;font-weight:400">${pSuffix()}</span></span></div></div>`;
 
-    h+=`<button class="cta" onclick="go('dashboard')">See Your Results →</button>`;
+    h+=`<button class="cta" onclick="go('dashboard')">${t("seeResults")}</button>`;
   }
 
   if(tab==="dashboard"){
     const mc={proportional:{c:"#5BAD78",bg:"rgba(91,173,120,0.08)",bd:"rgba(91,173,120,0.2)"},allowance:{c:"#6B9BD2",bg:"rgba(107,155,210,0.08)",bd:"rgba(107,155,210,0.2)"},debtAdjusted:{c:"#D4956A",bg:"rgba(212,149,106,0.08)",bd:"rgba(212,149,106,0.2)"}};
     const m=mc[mdl];
-    const mls={proportional:"Proportional",allowance:"Equal Allowance",debtAdjusted:"Debt-Adjusted"};
-    const descs={proportional:"<b>Proportional:</b> Each contributes based on after-tax income share.",allowance:"<b>Equal Allowance:</b> Both end up with identical personal spending money.",debtAdjusted:"<b>Debt-Adjusted:</b> Subtracts debts before calculating shares."};
+    const mls={proportional:t("proportional"),allowance:t("equalAllow"),debtAdjusted:t("debtAdj")};
+    const descs={proportional:t("propDesc"),allowance:t("allowDesc"),debtAdjusted:t("debtDesc")};
 
-    h+=`<div class="card gl"><div class="sec"><h3>🔀 Fairness Model</h3><p>Toggle to compare.</p></div><div class="tog">${[["proportional","⚖️","Proportional"],["allowance","🎯","Equal Allow."],["debtAdjusted","🛡️","Debt-Adj."]].map(([k,ic,l])=>`<button onclick="mdl='${k}';render()" style="${mdl===k?`background:${mc[k].bg};border-color:${mc[k].bd};color:${mc[k].c};font-weight:600`:''}">${ic} ${l}</button>`).join("")}</div><div style="margin-top:10px;padding:clamp(8px,2vw,14px);background:${m.bg};border-radius:8px;border:1px solid ${m.bd};font-size:clamp(12px,2.8vw,14px);color:${m.c};line-height:1.6">${descs[mdl]}</div></div>`;
+    h+=`<div class="card gl"><div class="sec"><h3>🔀 ${t("fairnessModel")}</h3><p>${t("toggleCompare")}</p></div><div class="tog">${[["proportional","⚖️",t("proportional")],["allowance","🎯",t("equalAllow")],["debtAdjusted","🛡️",t("debtAdj")]].map(([k,ic,l])=>`<button onclick="mdl='${k}';render()" style="${mdl===k?`background:${mc[k].bg};border-color:${mc[k].bd};color:${mc[k].c};font-weight:600`:''}">${ic} ${l}</button>`).join("")}</div><div style="margin-top:10px;padding:clamp(8px,2vw,14px);background:${m.bg};border-radius:8px;border:1px solid ${m.bd};font-size:clamp(12px,2.8vw,14px);color:${m.c};line-height:1.6">${descs[mdl]}</div></div>`;
 
     h+=`<div class="g2">${[[s.pA,fmt(ar.mA)+"/mo",pct(ar.sA),"#C9A84C"],[s.pB,fmt(ar.mB)+"/mo",pct(ar.sB),"#6B9BD2"]].map(([n,v,sub,clr])=>`<div style="padding:clamp(10px,2.5vw,16px);background:#1E1E1C;border-radius:10px;border:1px solid #333330;border-left:3px solid ${clr};margin-bottom:clamp(10px,2vw,16px)"><div style="font-size:clamp(9px,2.2vw,11px);color:#706C60;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">✦ ${n} pays</div><div class="mono" style="font-size:clamp(15px,4vw,20px);color:${clr}">${v}</div><div style="font-size:clamp(10px,2.3vw,12px);color:#706C60;margin-top:3px">${sub} of expenses</div></div>`).join("")}</div>`;
 
@@ -399,12 +552,40 @@ function bind(){
   });
 }
 
-function go(t){
-  tab=t;render();
-  window.scrollTo(0,0);
-  document.querySelectorAll(".tabs button").forEach((b,i)=>{
-    b.className=["input","dashboard","wealth"][i]===t?"on":"";
+function setLang(l){
+  lang=l;
+  document.querySelectorAll(".lbtn").forEach(b=>{
+    if(b.dataset.lang===l){b.style.background="rgba(201,168,76,0.1)";b.style.color="#C9A84C"}
+    else{b.style.background="transparent";b.style.color="#706C60"}
   });
+  // Update period button labels
+  document.getElementById("pWeekly").textContent=t("weekly");
+  document.getElementById("pMonthly").textContent=t("monthly");
+  document.getElementById("pAnnual").textContent=t("annual");
+  // Update tab labels
+  document.getElementById("tabInput").innerHTML="📋 "+t("dataEntry");
+  document.getElementById("tabDash").innerHTML="📊 "+t("dashboard");
+  document.getElementById("tabWealth").innerHTML="🚀 "+t("wealth");
+  // Set RTL for Arabic
+  document.body.style.direction=l==="ar"?"rtl":"ltr";
+  render();
+}
+
+function setPeriod(p){
+  period=p;
+  document.querySelectorAll(".pbtn").forEach(b=>{
+    if(b.dataset.period===p){b.style.background="rgba(201,168,76,0.1)";b.style.color="#C9A84C"}
+    else{b.style.background="transparent";b.style.color="#706C60"}
+  });
+  render();
+}
+
+function go(t2){
+  tab=t2;render();
+  window.scrollTo(0,0);
+  document.getElementById("tabInput").className=t2==="input"?"on":"";
+  document.getElementById("tabDash").className=t2==="dashboard"?"on":"";
+  document.getElementById("tabWealth").className=t2==="wealth"?"on":"";
 }
 
 render();
