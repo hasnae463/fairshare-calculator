@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>The Fair Share Calculator™</title>
+<title>Cash & Crush Calculator™</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -53,13 +53,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div id="gate" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
 <div style="max-width:400px;width:100%;text-align:center">
   <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#C9A84C,#8B7535);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px">⚖️</div>
-  <h2 style="font-family:'Playfair Display';font-size:clamp(22px,6vw,28px);color:#F5F0E3;margin-bottom:8px">Welcome to Fair Share</h2>
-  <p style="color:#706C60;font-size:14px;margin-bottom:28px">Enter the email you used to purchase.</p>
+  <h2 style="font-family:'Playfair Display';font-size:clamp(22px,6vw,28px);color:#F5F0E3;margin-bottom:8px">Welcome to Cash & Crush</h2>
+  <p style="color:#706C60;font-size:14px;margin-bottom:28px">Enter your email to access the calculator — it's free.</p>
   <input type="email" id="gateEmail" placeholder="your@email.com" style="width:100%;padding:14px 16px;background:#1E1E1C;border:1.5px solid #333330;border-radius:10px;color:#F0EDE5;font-family:'Outfit';font-size:16px;outline:none;margin-bottom:12px;box-sizing:border-box;text-align:center" autocomplete="email"/>
   <input type="hidden" id="gatePass" value=""/>
   <button onclick="tryLogin()" style="width:100%;padding:16px;border:none;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,#C9A84C,#8B7535);color:#111110;font-family:'Outfit';font-size:16px;font-weight:700;margin-bottom:12px">Access Calculator →</button>
   <p id="gateErr" style="color:#D4716A;font-size:13px;display:none;margin-bottom:12px"></p>
-  <p style="font-size:12px;color:#706C60">Don't have access? <a href="https://cashandcrush.com" style="color:#C9A84C;text-decoration:underline">Get it here</a></p>
+  <p style="font-size:12px;color:#706C60">Want the full toolkit? <a href="https://cashandcrush.com#pricing" style="color:#C9A84C;text-decoration:underline">See plans</a></p>
 </div>
 </div>
 
@@ -71,7 +71,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <div class="w" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
   <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
     <div style="width:clamp(28px,7vw,36px);height:clamp(28px,7vw,36px);border-radius:8px;background:linear-gradient(135deg,#C9A84C,#8B7535);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:clamp(13px,3.5vw,18px)">⚖️</span></div>
-    <div style="min-width:0"><h1 style="font-family:'Playfair Display';font-size:clamp(15px,4.2vw,24px);color:#F5F0E3;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">The Fair Share Calculator</h1><p style="font-size:clamp(10px,2.5vw,13px);color:#706C60">Three fairness models. One honest conversation.</p></div>
+    <div style="min-width:0"><h1 style="font-family:'Playfair Display';font-size:clamp(15px,4.2vw,24px);color:#F5F0E3;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Cash & Crush Calculator</h1><p style="font-size:clamp(10px,2.5vw,13px);color:#706C60">Three fairness models. One honest conversation.</p></div>
   </div>
   <div style="padding:clamp(3px,1vw,6px) clamp(8px,2vw,14px);background:rgba(201,168,76,0.08);border-radius:14px;border:1px solid #8B7535;font-size:clamp(8px,2vw,11px);color:#C9A84C;font-weight:700;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;flex-shrink:0">Hasnae B.</div>
 </div>
@@ -108,7 +108,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <!-- FOOTER -->
 <div style="border-top:1px solid #333330;padding:clamp(10px,3vw,16px);text-align:center;background:#1E1E1C">
-  <p style="font-size:11px;color:#706C60">The Fair Share Calculator™ — Built by Hasnae B., Finance Professional</p>
+  <p style="font-size:11px;color:#706C60">Cash & Crush Calculator™ — Built by Hasnae B., Finance Professional</p>
   <p style="font-size:10px;color:#706C60;opacity:.6;margin-top:3px">For educational purposes only. Not financial advice.</p>
 </div>
 
@@ -117,47 +117,29 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <script>
 // ── SUPABASE LOGIN GATE ──
 const SUPABASE_URL="https://sebfgbmkuovwdcskzmey.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNlYmZnYm1rdW92d2Rjc2t6bWV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDg5OTksImV4cCI6MjA4ODAyNDk5OX0.8OfpDEQkMLPRJOBjtWLe2qXroWHeynjbpz3ff49K0RM";
 
 async function tryLogin(){
   const email=document.getElementById("gateEmail").value.trim().toLowerCase();
   const err=document.getElementById("gateErr");
   const btn=document.querySelector("#gate button");
   
-  if(!email){err.textContent="Please enter your email.";err.style.display="block";return}
+  if(!email||!email.includes("@")){err.textContent="Please enter a valid email.";err.style.display="block";return}
   
-  // Show loading state
-  btn.textContent="Verifying...";
+  btn.textContent="Loading...";
   btn.disabled=true;
   err.style.display="none";
   
   try{
-    // Check Supabase for licensed email
-    const res=await fetch(
-      `${SUPABASE_URL}/rest/v1/licensed_users?email=eq.${encodeURIComponent(email)}&active=eq.true&select=email,version`,
-      {headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}}
-    );
-    const data=await res.json();
-    
-    if(data&&data.length>0){
-      grantAccess(email);
-      // Log login event
-      fetch(`${SUPABASE_URL}/rest/v1/analytics`,{
-        method:"POST",
-        headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Content-Type":"application/json","Prefer":"return=minimal"},
-        body:JSON.stringify({event:"login",email:email,metadata:{version:data[0].version}})
-      }).catch(()=>{});
-    }else{
-      err.textContent="Email not found. Please use the email you purchased with.";
-      err.style.display="block";
-    }
-  }catch(e){
-    err.textContent="Connection error. Please try again.";
-    err.style.display="block";
-  }
+    // Log email to database for email list
+    fetch(`${SUPABASE_URL}/functions/v1/smart-action`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:email})
+    }).catch(()=>{});
+  }catch(e){}
   
-  btn.textContent="Access Calculator →";
-  btn.disabled=false;
+  // Grant access to everyone
+  grantAccess(email);
 }
 
 function grantAccess(email){
